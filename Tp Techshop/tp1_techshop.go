@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -30,9 +31,21 @@ type Catalogue struct {
 
 // --- FONCTIONNALITÉS (méthodes sur Catalogue) ---
 
-// AjouterProduit ajoute un produit ; erreur si l'ID existe déjà.
-// Pointer receiver : modifie le catalogue.
+// AjouterProduit ajoute un produit après validation ; erreur si données
+// invalides ou ID déjà utilisé. Pointer receiver : modifie le catalogue.
 func (c *Catalogue) AjouterProduit(p Produit) error {
+	if p.ID <= 0 {
+		return fmt.Errorf("ID invalide : %d (doit être > 0)", p.ID)
+	}
+	if strings.TrimSpace(p.Nom) == "" {
+		return fmt.Errorf("le nom du produit est obligatoire")
+	}
+	if p.Prix < 0 {
+		return fmt.Errorf("prix invalide : %.2f (ne peut pas être négatif)", p.Prix)
+	}
+	if p.Stock < 0 {
+		return fmt.Errorf("stock invalide : %d (ne peut pas être négatif)", p.Stock)
+	}
 	for _, existant := range c.produits {
 		if existant.ID == p.ID {
 			return fmt.Errorf("ID %d déjà utilisé (produit « %s »)", p.ID, existant.Nom)
@@ -74,7 +87,8 @@ func (c *Catalogue) AppliquerReduction(categorie string, pct float64) int {
 	modifies := 0
 	for i := range c.produits {
 		if strings.EqualFold(c.produits[i].Categorie, categorie) {
-			c.produits[i].Prix = c.produits[i].Prix * (1 - pct/100)
+			nouveauPrix := c.produits[i].Prix * (1 - pct/100)
+			c.produits[i].Prix = math.Round(nouveauPrix*100) / 100 // arrondi à 2 décimales
 			modifies++
 		}
 	}
