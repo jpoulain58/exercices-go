@@ -14,8 +14,8 @@ const (
 
 func main() {
 	// 1. Données : poids (kg) et taille (m)
-	var poids float64 = 70.5
-	var taille float64 = 1.75
+	var poids float64 = 82
+	var taille float64 = 1.89
 
 	// 3. Calcul de l'IMC
 	imc := poids / (taille * taille)
